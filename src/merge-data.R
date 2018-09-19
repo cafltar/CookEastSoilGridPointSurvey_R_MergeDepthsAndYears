@@ -6,7 +6,8 @@ library(tmap)
 # Load data ----
 # Georef points are 369 grid points the soil was sampled from
 georef <- st_read("input/CookEast_GeoReferencePoints_2015_IL/All_CookEast.shp") %>% 
-  st_transform(crs = 4326)
+  st_transform(crs = 4326) %>% 
+  select(ID2, COLUMN, ROW2, STRIP, FIELD)
 
 # 2015 soil data include shallow and deep cores, acid washed samples integrated
 df2015 <- read_excel(
@@ -22,20 +23,19 @@ df1998_2008 <- read_excel(
 
 # Acid washed data for 1998 and 2008
 dfAcidX8 <- read_excel(
-  "input/1998 and 2008 acid wahsed soil samples C N 13C data.xls",
-  "Summary Table",
-  skip = 10)
+  "input/acidWashedSamples_1998-2008_20180918.xlsx",
+  "Sheet1")
 
 
 # Prepare 2015 ----
 # Check Easting/Northing in Ellen's data with "correct" dataset
-st_as_sf(df2015, 
-         coords = c("Easting", "Northing"), 
-         na.fail = FALSE, 
-         crs = 26911) %>% 
-  st_transform(crs = 4326) %>% 
-  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("ID2", "Column", "Row2")) +
-  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
+#st_as_sf(df2015, 
+#         coords = c("Easting", "Northing"), 
+#         na.fail = FALSE, 
+#         crs = 26911) %>% 
+#  st_transform(crs = 4326) %>% 
+#  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("ID2", "Column", "Row2")) +
+#  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
 # Looks like Easting/Northing is off, but ID2 and row2,col is okay
 
 clean15 <- df2015 %>% 
@@ -51,38 +51,37 @@ clean15 <- df2015 %>%
     "Total C%",
     "Total C%_acid washed",
     "pH_soil:water=1:1)",
-    "Carbon stocks (Mg ·ha-1)",
-    "Accumulative C stocks(Mg ·ha-1)") %>% 
+    "Carbon stocks (Mg ·ha-1)") %>% 
   rename("TopDepth" = "top (cm)",
     "BottomDepth" = "bottom(cm)",
     "Horizon" = "Horizons",
     "BulkDensity" = "Bulk density\r\n(g cm-3)",
-    "C13" = 9,
-    "C13AcidWashed" = 10,
-    "TN" = "Total N%",
-    "TNAcidWashed" = "Total N%_acid washed",
-    "TC" = "Total C%",
-    "TCAcidWashed" = "Total C%_acid washed",
+    "dC13" = 7,
+    "dC13AcidWashed" = 8,
+    "TNConc" = "Total N%",
+    "TNConcAcidWashed" = "Total N%_acid washed",
+    "TCConc" = "Total C%",
+    "TCConcAcidWashed" = "Total C%_acid washed",
     "pH" = "pH_soil:water=1:1)",
-    "CStock" = "Carbon stocks (Mg ·ha-1)",
-    "CStockAccum" = "Accumulative C stocks(Mg ·ha-1)") %>% 
-  mutate(SampleId = str_replace(Label, " ", "_")) %>% 
+    "TOCStock" = "Carbon stocks (Mg ·ha-1)") %>% 
+  mutate(SampleId = str_replace(Label__1, " ", "_")) %>% 
   mutate(pH = as.double(pH)) %>% 
-  mutate(C13 = as.double(C13)) %>% 
-  mutate(TN = as.double(TN)) %>% 
-  mutate(TC = as.double(TC))
+  mutate(dC13 = as.double(C13)) %>% 
+  mutate(TNConc = as.double(TN)) %>% 
+  mutate(TCConc = as.double(TC)) %>% 
+  select(-Label__1)
   
 
 
 # Prepare 1998-2008 data ----
 # Check Easting/Northing in Tabitha's data with "correct" dataset
-st_as_sf(df1998_2008, 
-         coords = c("1998_Easting", "1998_Northing"), 
-         na.fail = FALSE, 
-         crs = 26911) %>% 
-  st_transform(crs = 4326) %>% 
-  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("1998_ID2", "1998_Col", "1998_Row2")) +
-  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
+#st_as_sf(df1998_2008, 
+#         coords = c("1998_Easting", "1998_Northing"), 
+#         na.fail = FALSE, 
+#         crs = 26911) %>% 
+#  st_transform(crs = 4326) %>% 
+#  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("1998_ID2", "1998_Col", "1998_Row2")) +
+#  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
 # Looks like Easting/Northing is ok and ID2 and row2,col is okay
 
 # Select and rename
@@ -138,9 +137,9 @@ cleanX8 <- bind_rows(df98, df08) %>%
     "TopDepth" = "TopD_cm",
     "BottomDepth" = "BottomD_cm",
     "BulkDensity" = "BD",
-    "TC" = "TruSpecC_Prct",
-    "TN" = "TruSpecN_Prct",
-    "CStock" = "Soil_C_Stock_Mgha") %>% 
+    "TCConc" = "TruSpecC_Prct",
+    "TNConc" = "TruSpecN_Prct",
+    "TOCStock" = "Soil_C_Stock_Mgha") %>% 
   mutate(SampleId = paste("CF",
     as.character(str_sub(Year, 3, 4)),
     "GP_",
@@ -149,20 +148,14 @@ cleanX8 <- bind_rows(df98, df08) %>%
     as.character(TopDepth),
     "-",
     as.character(BottomDepth),
-    sep = "")) %>% 
-  mutate(CStock = (BottomDepth - TopDepth) * TC/100 * BulkDensity * 100) 
+    sep = ""))
 
 # Merge acid washed with cleanX8
 cleanAcidX8 <- dfAcidX8  %>% 
-  filter(`soil type` == "acid washed") %>% 
-  select("Sample",
-         5,
-         "Total N%",
-         "Total C%") %>% 
-  rename("C13AcidWashed" = 2,
-         "TNAcidWashed" = "Total N%",
-         "TCAcidWashed" = "Total C%") %>% 
-  separate(Sample, 
+  rename("dC13AcidWashed" = "dC13",
+         "TNConcAcidWashed" = "TN",
+         "TCConcAcidWashed" = "TC") %>% 
+  separate(SampleId, 
            into = c("Field", "Year", "ID2", "ColRowDepth"),
            sep = "_") %>% 
   separate(ColRowDepth,
@@ -178,16 +171,49 @@ cleanAcidX8 <- dfAcidX8  %>%
   mutate(ID2 = as.numeric(str_remove(ID2, "GP")),
          Year = as.numeric(Year))
 
-foo <- full_join(cleanX8, cleanAcidX8)
-foo <- full_join(cleanX8, cleanAcidX8, by = c("ID2", "BottomDepth", "Year"))
-foo$C13AcidWashed = case_when(foo$BottomDepth == cleanAcidX8$BottomDepth ~ cleanAcidX8$C13AcidWashed,
-                              TRUE ~ NA)
-foo %>% mutate(C13AcidWashed = case_when(.$BottomDepth == cleanAcidX8$BottomDepth ~ 9.0,
-                                         TRUE ~ NULL))
+cleanX8AcidWash <- full_join(cleanX8, cleanAcidX8, by = c("ID2", "BottomDepth", "Year")) %>% 
+  select(-TopDepth.y, -Field, -Column, -Row) %>% 
+  rename(TopDepth = TopDepth.x)
 
+cleanX8AWCStock <- cleanX8AcidWash %>% 
+  mutate(TocStock = case_when(
+    is.na(TCConcAcidWashed) ~ (BottomDepth - TopDepth) * TCConc/100 * BulkDensity * 100,
+    !is.na(TCConcAcidWashed) ~ (BottomDepth - TopDepth) * TCConcAcidWashed/100 * BulkDensity * 100))
 
-df <- bind_rows(cleanX8, clean15)
+# Merge years
+cleanAllYears <- bind_rows(cleanX8AWCStock, clean15) %>% 
+  filter(!is.na(.$ID2))
 
+# Add coordinates
+df <- cleanAllYears %>% 
+  full_join(data.frame(st_coordinates(georef), 
+                       st_set_geometry(georef, NULL)),
+            by = c("ID2")) %>% 
+  select(-COLUMN, -ROW2, -STRIP, -FIELD) %>% 
+  rename(Latitude = Y, Longitude = X)
+
+# Add C and N related columns
+df <- df %>% 
+  mutate(TocConc = case_when(
+    is.na(TCConcAcidWashed) & !is.na(TCConc) ~ TCConc,
+    !is.na(TCConcAcidWashed) ~ TCConcAcidWashed)) %>% 
+  mutate(TicConc = case_when(
+    !is.na(TCConcAcidWashed) & !is.na(TCConc) ~ TCConc - TCConcAcidWashed,
+    TRUE ~ 0)) %>% 
+  mutate(TicStock = (BottomDepth - TopDepth) * TicConc / 100 * BulkDensity * 100) %>% 
+  mutate(TNStock = (BottomDepth - TopDepth) * TNConc / 100 * BulkDensity * 100)
+
+# Reorganize columns and write csv
+dateToday <- format(Sys.Date(), "%y%m%d")
+outPath <- paste("output/soilCore_1998-2015_shallow_deep_mergedByHorizon_", 
+                 dateToday, 
+                 ".csv",
+                 sep = "")
+df %>% 
+  select(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
+         BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
+         TCConc, TCConcAcidWashed, TocConc, TicConc, TicStock, TNStock, pH) %>% 
+  write_csv(outPath)
 
 # Quick checks ----
 # Compare points between datasets:
@@ -195,3 +221,11 @@ cleanX8$`1998_ID2`[!(cleanX8$`1998_ID2`%in% clean15$ID2)]
 
 # Quick graph -- fairly  meaningless
 ggplot(df, aes(ID2, TC, color = Year, alpha = 0.6)) + geom_point()
+
+# Quick map
+tmap_mode("view")
+df %>% st_as_sf(coords = c("Longitude", "Latitude"), 
+                na.fail = FALSE, 
+                crs = 4326) %>% 
+  tm_shape() + tm_symbols(size = 1, col = "black") +
+  tm_shape(georef) + tm_symbols(size = 0.25, col = "red")
