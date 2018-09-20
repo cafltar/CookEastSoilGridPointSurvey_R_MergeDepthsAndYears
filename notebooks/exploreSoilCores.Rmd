@@ -1,0 +1,286 @@
+---
+title: "Explore Soil Core Data"
+output: html_document
+---
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r setup}
+library(tidyverse)
+library(sf)
+library(tmap)
+library(DT)
+library(gstat)
+library(raster)
+library(maptools)
+```
+
+```{r idwMap}
+map_cookeast_idw <- function(simpleFeatureObj, cookEastBoundary, factor) {
+  # TODO: add params for hardcoded values
+  # Convert sf to sp
+  sp <- as(simpleFeatureObj, "Spatial")
+  
+  # Create grid for IDW
+  e <- extent(sp)
+  grid <- raster(e)
+  proj4string(grid) <- proj4string(sp)
+  res(grid) <- c(0.00005, 0.00005)
+  grid <- as(grid, "SpatialPointsDataFrame")
+  
+  # Passing variable names is tricky: https://stackoverflow.com/a/34079727
+  var <- eval(substitute(factor), simpleFeatureObj)
+  var.name <- substitute(var)
+  
+  # Generate IDW 
+  idw <- idw(formula = var ~ 1, locations = sp, newdata = grid, idp = 2)
+  
+  # Clip and map
+  idw.sf.clip <- st_intersection(st_as_sf(idw), cookEastBoundary)
+  idw.clip <- as(idw.sf.clip, "Spatial")
+  spplot(idw.clip, "var1.pred")
+}
+```
+
+## Load data
+
+```{r loadData}
+df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_180919.csv")
+sf <- st_as_sf(df, coords = c("Longitude", "Latitude"), crs = 4326)
+cookeast <- st_read("../input/CookEastBoundary_20180131.geojson")
+```
+
+Data fields
+
+```{r headers}
+df %>% names()
+```
+
+
+## Map sample locations
+
+Compare samples across years
+
+```{r ggplotMap }
+sf %>% ggplot() + 
+  geom_sf(aes(color = as.factor(Year))) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  facet_grid(. ~ Year)
+```
+
+# Bulk Density (g/cm^3)
+
+```{r bulkDensityWideFormat}
+bulkDensity <- df %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  mutate(key = row_number()) %>% 
+  spread(Year, BulkDensity) %>% 
+  dplyr::select(-key) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  fill(-ID2, TopDepth, BottomDepth) %>% 
+  rename(BulkDensity1998 = 4, BulkDensity2005 = 5, BulkDensity2015 = 6) %>% 
+  filter(!is.na(BulkDensity2015))
+```
+
+Display table
+
+```{r bulkDensityTable}
+bulkDensity %>% datatable(rownames = F)
+```
+
+Map avg bulk density
+
+```{r bulkDensityMap, out.width="100%"}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(AvgBD = mean(BulkDensity)) %>% 
+  ggplot() + 
+    geom_sf(aes(color = AvgBD)) + 
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    facet_grid(Year ~ .)
+```
+
+### IDW Bulk Density 1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(AvgBD = mean(BulkDensity)) %>% 
+  filter(!is.na(AvgBD)) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, AvgBD)
+```
+
+### IDW Bulk Density 2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  dplyr::select(ID2, TopDepth, BottomDepth, BulkDensity) %>%  
+  group_by(ID2) %>% 
+  summarize(AvgBD = mean(BulkDensity)) %>% 
+  filter(!is.na(AvgBD)) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, AvgBD)
+```
+
+### IDW Bulk Density 2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  dplyr::select(ID2, TopDepth, BottomDepth, BulkDensity) %>%  
+  group_by(ID2) %>% 
+  summarize(AvgBD = mean(BulkDensity)) %>% 
+  filter(!is.na(AvgBD)) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, AvgBD)
+```
+
+# pH
+
+```{r pHWideFormat}
+pH <- df %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  mutate(key = row_number()) %>% 
+  spread(Year, pH) %>% 
+  dplyr::select(-key) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  fill(-ID2, TopDepth, BottomDepth) %>% 
+  rename(pH1998 = 4, pH2005 = 5, pH2015 = 6) %>% 
+  filter(!is.na(pH2015))
+```
+
+Display table
+
+```{r pHTable}
+pH %>% datatable(rownames = F)
+```
+
+Map pH, year by bottom depth (0-10 cm, 10-20 cm, 20-30 cm)
+
+```{r pHMap, out.width="100%"}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>%  
+  filter(BottomDepth < 31) %>% 
+  na.exclude() %>% 
+  ggplot() + 
+    geom_sf(aes(color = pH)) + 
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    facet_grid(Year ~ BottomDepth)
+```
+
+### IDW pH 1998 @ 20-30 cm depth increment
+
+```{r}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
+  filter(Year == 1998) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, pH)
+```
+
+### IDW pH 2008 @ 20-30 cm depth increment
+
+```{r}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
+  filter(Year == 2008) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, pH)
+```
+
+### IDW pH 2015 @ 20-30 cm depth increment
+
+```{r}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
+  filter(Year == 2015) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, pH)
+```
+
+# Total organic carbon stock (Mg/ha)
+
+```{r}
+tocStock <- df %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  mutate(key = row_number()) %>% 
+  spread(Year, TocStock) %>% 
+  dplyr::select(-key) %>% 
+  group_by(ID2, TopDepth, BottomDepth) %>% 
+  fill(-ID2, TopDepth, BottomDepth) %>% 
+  rename(TocStock1998 = 4, TocStock2005 = 5, TocStock2015 = 6) %>% 
+  filter(!is.na(TocStock2015))
+```
+
+Display table
+
+```{r}
+tocStock %>% datatable(rownames = F)
+```
+
+Map profile TOC Stock
+
+```{r, out.width="100%"}
+sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>% 
+  ggplot() + 
+    geom_sf(aes(color = ProfileTocStock)) + 
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+    facet_grid(Year ~ .)
+```
+
+### IDW Profile TOC Stock 1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock)
+```
+
+### IDW Profile TOC Stock 2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>% 
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock)
+```
+
+### IDW Profile TOC Stock 2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock)
+```
