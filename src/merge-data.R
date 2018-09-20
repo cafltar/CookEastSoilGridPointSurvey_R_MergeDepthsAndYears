@@ -222,7 +222,7 @@ outPath <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_",
 df %>% 
   select(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
          BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
-         TCConc, TCConcAcidWashed, TocConc, TicConc, TicStock, TNStock, pH) %>% 
+         TCConc, TCConcAcidWashed, TocConc, TocStock, TicConc, TicStock, TNStock, pH) %>% 
   write_csv(outPath, na = "")
 
 # Quick checks ----
