@@ -28,3 +28,7 @@
   * Copied values from [Team Drives\CookEastSoilGridPointSurvey\Received\FromQiupingPeng_20180810\1998 2008 and 2015 inorganic carbonates temporal change.xlsx]
   * Selected values that were highlighted in green from worksheet "1998 2008 2015 SIC summary", combined with reweighs from: [MS_20180901_Peng Reweighs Final Report.xls]
     * combined values include only sampleIDs "CF_1998_GP33_16B 21-59" and "CF_2008_GP251_11K 15-35"
+	
+## 09/19/2018
+* [Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx](Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx)
+	* From [Team Drives\CookEastSoilGridPointSurvey\Working\Excel]

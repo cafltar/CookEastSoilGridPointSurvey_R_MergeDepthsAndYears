@@ -17,7 +17,7 @@ df2015 <- read_excel(
 
 # 1998, 2008 soil data include shallow and deep cores, no acid washed integration
 df1998_2008 <- read_excel(
-  "input/2017_03_10_Soil_Plant_Fert_Data_Combined drh_20180914.xlsx",
+  "input/Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx",
   "1998_2008_SoilMerged_2017_03_09",
   na = c(".", "", "NA"))
 
@@ -25,7 +25,6 @@ df1998_2008 <- read_excel(
 dfAcidX8 <- read_excel(
   "input/acidWashedSamples_1998-2008_20180918.xlsx",
   "Sheet1")
-
 
 # Prepare 2015 ----
 # Check Easting/Northing in Ellen's data with "correct" dataset
@@ -63,15 +62,14 @@ clean15 <- df2015 %>%
     "TCConc" = "Total C%",
     "TCConcAcidWashed" = "Total C%_acid washed",
     "pH" = "pH_soil:water=1:1)",
-    "TOCStock" = "Carbon stocks (Mg ·ha-1)") %>% 
+    "TocStock" = "Carbon stocks (Mg ·ha-1)") %>% 
   mutate(SampleId = str_replace(Label__1, " ", "_")) %>% 
   mutate(pH = as.double(pH)) %>% 
-  mutate(dC13 = as.double(C13)) %>% 
-  mutate(TNConc = as.double(TN)) %>% 
-  mutate(TCConc = as.double(TC)) %>% 
+  mutate(dC13 = as.double(dC13)) %>% 
+  mutate(TNConc = as.double(TNConc)) %>% 
+  mutate(TCConc = as.double(TCConc)) %>% 
+  mutate(Year = 2015) %>% 
   select(-Label__1)
-  
-
 
 # Prepare 1998-2008 data ----
 # Check Easting/Northing in Tabitha's data with "correct" dataset
@@ -139,7 +137,7 @@ cleanX8 <- bind_rows(df98, df08) %>%
     "BulkDensity" = "BD",
     "TCConc" = "TruSpecC_Prct",
     "TNConc" = "TruSpecN_Prct",
-    "TOCStock" = "Soil_C_Stock_Mgha") %>% 
+    "TocStock" = "Soil_C_Stock_Mgha") %>% 
   mutate(SampleId = paste("CF",
     as.character(str_sub(Year, 3, 4)),
     "GP_",
@@ -175,22 +173,34 @@ cleanX8AcidWash <- full_join(cleanX8, cleanAcidX8, by = c("ID2", "BottomDepth", 
   select(-TopDepth.y, -Field, -Column, -Row) %>% 
   rename(TopDepth = TopDepth.x)
 
-cleanX8AWCStock <- cleanX8AcidWash %>% 
+# Finalize dataset ----
+# Merge years
+cleanAllYears <- bind_rows(cleanX8AcidWash, clean15) %>% 
+  filter(!is.na(.$ID2))
+
+# Stretch bottom depth increment to 153 cm
+df <- cleanAllYears %>% 
+  group_by(ID2, Year) %>% 
+  mutate(MaxDepth = max(BottomDepth)) %>% 
+  ungroup() %>% 
+  mutate(BottomDepth = case_when(BottomDepth == MaxDepth ~ 153,
+    TRUE ~ BottomDepth)) %>% 
+  select(-MaxDepth)
+
+# Calculate total organic carbon stocks
+df <- df %>% 
   mutate(TocStock = case_when(
     is.na(TCConcAcidWashed) ~ (BottomDepth - TopDepth) * TCConc/100 * BulkDensity * 100,
     !is.na(TCConcAcidWashed) ~ (BottomDepth - TopDepth) * TCConcAcidWashed/100 * BulkDensity * 100))
 
-# Merge years
-cleanAllYears <- bind_rows(cleanX8AWCStock, clean15) %>% 
-  filter(!is.na(.$ID2))
-
 # Add coordinates
-df <- cleanAllYears %>% 
+df <- df %>% 
   full_join(data.frame(st_coordinates(georef), 
                        st_set_geometry(georef, NULL)),
             by = c("ID2")) %>% 
   select(-COLUMN, -ROW2, -STRIP, -FIELD) %>% 
-  rename(Latitude = Y, Longitude = X)
+  rename(Latitude = Y, Longitude = X) %>% 
+  filter(!is.na(Year))
 
 # Add C and N related columns
 df <- df %>% 
@@ -205,7 +215,7 @@ df <- df %>%
 
 # Reorganize columns and write csv
 dateToday <- format(Sys.Date(), "%y%m%d")
-outPath <- paste("output/soilCore_1998-2015_shallow_deep_mergedByHorizon_", 
+outPath <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_", 
                  dateToday, 
                  ".csv",
                  sep = "")
@@ -213,19 +223,19 @@ df %>%
   select(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
          BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
          TCConc, TCConcAcidWashed, TocConc, TicConc, TicStock, TNStock, pH) %>% 
-  write_csv(outPath)
+  write_csv(outPath, na = "")
 
 # Quick checks ----
-# Compare points between datasets:
-cleanX8$`1998_ID2`[!(cleanX8$`1998_ID2`%in% clean15$ID2)]
-
-# Quick graph -- fairly  meaningless
-ggplot(df, aes(ID2, TC, color = Year, alpha = 0.6)) + geom_point()
-
-# Quick map
-tmap_mode("view")
-df %>% st_as_sf(coords = c("Longitude", "Latitude"), 
-                na.fail = FALSE, 
-                crs = 4326) %>% 
-  tm_shape() + tm_symbols(size = 1, col = "black") +
-  tm_shape(georef) + tm_symbols(size = 0.25, col = "red")
+## Compare points between datasets:
+#cleanX8$`1998_ID2`[!(cleanX8$`1998_ID2`%in% clean15$ID2)]
+#
+## Quick graph -- fairly  meaningless
+#ggplot(df, aes(ID2, TC, color = Year, alpha = 0.6)) + geom_point()
+#
+## Quick map
+#tmap_mode("view")
+#df %>% st_as_sf(coords = c("Longitude", "Latitude"), 
+#                na.fail = FALSE, 
+#                crs = 4326) %>% 
+#  tm_shape() + tm_symbols(size = 1, col = "black") +
+#  tm_shape(georef) + tm_symbols(size = 0.25, col = "red")
