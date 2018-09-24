@@ -32,3 +32,8 @@
 ## 09/19/2018
 * [Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx](Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx)
 	* From [Team Drives\CookEastSoilGridPointSurvey\Working\Excel]
+	
+## 09/24/2018
+* [soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx](soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx)
+	* From [../Excel]
+	* Recified issues with BD data from [2017_08_29_Accepted_BD_for_Merging_2017_03_08.xlsx] and BD data from [2015 soil samples  merge 0-30 and below profile data organization.xlsx] - updated depths, horizons, probably other things

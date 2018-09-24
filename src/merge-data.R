@@ -9,11 +9,9 @@ georef <- st_read("input/CookEast_GeoReferencePoints_2015_IL/All_CookEast.shp") 
   st_transform(crs = 4326) %>% 
   select(ID2, COLUMN, ROW2, STRIP, FIELD)
 
-# 2015 soil data include shallow and deep cores, acid washed samples integrated
 df2015 <- read_excel(
-  "input/2015 soil samples  merge 0-30 and below profile data organization.xlsx", 
-  sheet = "Merged Profile (2)",
-  na = c("NA"))
+  "input/soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx",
+  "Sheet1")
 
 # 1998, 2008 soil data include shallow and deep cores, no acid washed integration
 df1998_2008 <- read_excel(
@@ -26,68 +24,8 @@ dfAcidX8 <- read_excel(
   "input/acidWashedSamples_1998-2008_20180918.xlsx",
   "Sheet1")
 
-# Bulk density data for '98, '08, '15 - '15 BD is modified from ones in 2015 merged dataset (df2015)
-bd <- read_excel(
-  "input/2017_08_29_Accepted_BD_for_Merging_2017_03_08.xlsx",
-  "master_2017_02_20_2015"
-) %>% 
-  select(ID2, Horiz_15, TopD_15, BottomD_15, Accepted_15)
-
-# Prepare 2015 ----
-# Check Easting/Northing in Ellen's data with "correct" dataset
-#st_as_sf(df2015, 
-#         coords = c("Easting", "Northing"), 
-#         na.fail = FALSE, 
-#         crs = 26911) %>% 
-#  st_transform(crs = 4326) %>% 
-#  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("ID2", "Column", "Row2")) +
-#  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
-# Looks like Easting/Northing is off, but ID2 and row2,col is okay
-
 clean15 <- df2015 %>% 
-  select("Label__1",
-    "top (cm)",
-    "bottom(cm)",
-    "ID2",
-    "Horizons",
-    "Bulk density\r\n(g cm-3)",
-    contains("VPDB"),
-    "Total N%",
-    "Total N%_acid washed",
-    "Total C%",
-    "Total C%_acid washed",
-    "pH_soil:water=1:1)",
-    "Carbon stocks (Mg ·ha-1)") %>% 
-  rename("TopDepth" = "top (cm)",
-    "BottomDepth" = "bottom(cm)",
-    "Horizon" = "Horizons",
-    "BulkDensity" = "Bulk density\r\n(g cm-3)",
-    "dC13" = 7,
-    "dC13AcidWashed" = 8,
-    "TNConc" = "Total N%",
-    "TNConcAcidWashed" = "Total N%_acid washed",
-    "TCConc" = "Total C%",
-    "TCConcAcidWashed" = "Total C%_acid washed",
-    "pH" = "pH_soil:water=1:1)",
-    "TocStock" = "Carbon stocks (Mg ·ha-1)") %>% 
-  mutate(SampleId = str_replace(Label__1, " ", "_")) %>% 
-  mutate(pH = as.double(pH)) %>% 
-  mutate(dC13 = as.double(dC13)) %>% 
-  mutate(TNConc = as.double(TNConc)) %>% 
-  mutate(TCConc = as.double(TCConc)) %>% 
-  mutate(Year = 2015) %>% 
-  select(-Label__1)
-
-# Prepare 1998-2008 data ----
-# Check Easting/Northing in Tabitha's data with "correct" dataset
-#st_as_sf(df1998_2008, 
-#         coords = c("1998_Easting", "1998_Northing"), 
-#         na.fail = FALSE, 
-#         crs = 26911) %>% 
-#  st_transform(crs = 4326) %>% 
-#  tm_shape() + tm_symbols(size = 1, col = "black", popup.vars = c("1998_ID2", "1998_Col", "1998_Row2")) +
-#  tm_shape(georef) + tm_symbols(size = 0.25, col = "red", popup.vars = c("ID2", "COLUMN", "ROW2"))
-# Looks like Easting/Northing is ok and ID2 and row2,col is okay
+  mutate(Year = 2015)
 
 # Select and rename
 dfX8 <- df1998_2008 %>% 
@@ -119,7 +57,7 @@ dfX8 <- df1998_2008 %>%
          "2008_BD" = "Accepted_2008_BD_gcm3",
          "1998_pH" = "1998_SoilpH",
          "2008_pH" = "2008 pH")
-  
+
 # Split year columns into separate dataframes, add Year column, remove year prefix from column names, convert data classes
 df98 <- dfX8 %>% 
   select("ID2", contains("1998")) %>% 
