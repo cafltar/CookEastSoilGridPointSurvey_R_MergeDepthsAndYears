@@ -26,6 +26,13 @@ dfAcidX8 <- read_excel(
   "input/acidWashedSamples_1998-2008_20180918.xlsx",
   "Sheet1")
 
+# Bulk density data for '98, '08, '15 - '15 BD is modified from ones in 2015 merged dataset (df2015)
+bd <- read_excel(
+  "input/2017_08_29_Accepted_BD_for_Merging_2017_03_08.xlsx",
+  "master_2017_02_20_2015"
+) %>% 
+  select(ID2, Horiz_15, TopD_15, BottomD_15, Accepted_15)
+
 # Prepare 2015 ----
 # Check Easting/Northing in Ellen's data with "correct" dataset
 #st_as_sf(df2015, 
