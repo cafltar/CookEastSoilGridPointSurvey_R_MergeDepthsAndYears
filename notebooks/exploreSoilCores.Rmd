@@ -49,11 +49,18 @@ map_cookeast_idw <- function(simpleFeatureObj,
   
   #cuts <- 0.2*(1.2:7)
   
-  spplot(idw.clip, 
+  if(is.na(cutSeq) | is.na(colSeq)) {
+    spplot(idw.clip, 
+         "var1.pred", 
+         sp.layout = list("sp.points", sp, pch = 16, cex = 0.5, col = "black"))
+  } else {
+    spplot(idw.clip, 
          "var1.pred", 
          cuts = cutSeq, 
          col.regions = colSeq,
          sp.layout = list("sp.points", sp, pch = 16, cex = 0.5, col = "black"))
+  }
+  
   #ggplot() + geom_sf(data = idw.sf.clip, aes(col = var1.pred))
   #par(mfrow=c(1,2),oma=c(2,2,2,2))
   #cols = bpy.colors(30)
@@ -304,4 +311,168 @@ sf %>%
   summarize(ProfileTocStock = sum(TocStock)) %>%
   na.exclude() %>% 
   map_cookeast_idw(cookeast, ProfileTocStock, seq(80,260,by=30), cols <- blues9[3:9])
+```
+
+### IDW 0 - 10 cm TOC Stocks
+
+1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  filter(TopDepth == 0 & BottomDepth == 10) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(12.9,51.9,by=6.5), cols <- blues9[3:9])
+```
+
+2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  filter(TopDepth == 0 & BottomDepth == 10) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(12.9,51.9,by=6.5), cols <- blues9[3:9])
+```
+
+2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  filter(TopDepth == 0 & BottomDepth == 10) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(12.9,51.9,by=6.5), cols <- blues9[3:9])
+```
+
+### IDW 10 cm - 20 cm TOC Stocks
+
+1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  filter(TopDepth == 10 & BottomDepth == 20) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(2.3,36,by=5.6), cols <- blues9[3:9])
+```
+
+2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  filter(TopDepth == 10 & BottomDepth == 20) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(2.3,36,by=5.6), cols <- blues9[3:9])
+```
+
+2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  filter(TopDepth == 10 & BottomDepth == 20) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(2.3,36,by=5.6), cols <- blues9[3:9])
+```
+
+### IDW 20 cm - 30 cm TOC Stocks
+
+1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(4.1,42.7,by=6.4), cols <- blues9[3:9])
+```
+
+2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(4.1,42.7,by=6.4), cols <- blues9[3:9])
+```
+
+2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  filter(TopDepth == 20 & BottomDepth == 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(4.1,42.7,by=6.4), cols <- blues9[3:9])
+```
+
+### IDW 30 cm - 153 cm TOC Stocks
+
+1998
+
+```{r}
+sf %>% 
+  filter(Year == 1998) %>% 
+  filter(TopDepth > 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(17.4,199,by=30.3), cols <- blues9[3:9])
+```
+
+2008
+
+```{r}
+sf %>% 
+  filter(Year == 2008) %>% 
+  filter(TopDepth > 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(17.4,199,by=30.3), cols <- blues9[3:9])
+```
+
+2015
+
+```{r}
+sf %>% 
+  filter(Year == 2015) %>% 
+  filter(TopDepth > 30) %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>%  
+  group_by(Year, ID2) %>% 
+  summarize(ProfileTocStock = sum(TocStock)) %>%
+  na.exclude() %>% 
+  map_cookeast_idw(cookeast, ProfileTocStock, seq(17.4,199,by=30.3), cols <- blues9[3:9])
 ```
