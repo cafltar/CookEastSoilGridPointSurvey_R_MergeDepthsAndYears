@@ -1,21 +1,21 @@
-FieldNames,Units,Description
-Year,unitless,Year sample was collected
-ID2,unitless,Number ID of georeference point near sample collection
-Latitude,dd,Latitude of georeference point near where sample was collected
-Longitude,dd,Longitude of georeference point near where sample was colelcted
-TopDepth,cm,Top depth of subsample taken from soil core
-BottomDepth,cm,Bottom depth of subsample taken from soil core
-Horizon,unitless,Horizon designation of the subsample
-BulkDensity,g/cm^3,Bulk density of the subsample
-dC13,%o,Carbon isotopic signature of the subsample
-dC13AcidWashed,%o,Carbon isotopic signature of the subsample after acid washed
-TNConc,%,Total nitrogen concentraion
-TNConcAcidWashed,%,Total nitrogen concentration after acid washed
-TCConc,%,Total carbon concentration
-TCConcAcidWashed,%,Total carbon concentration after acid washed
-TocConc,%,Total organic carbon concentration
-TocStock,Mg/ha,Total organic carbon stock
-TicConc,%,Total inorganic carbon concentration
-TicStock,Mg/ha,Total inorganic carbon stock
-TNStock,Mg/ha,Total nitrogen stock
-pH,unitless,pH of the subsample
+FieldNames,Units,Description,DataType
+Year,unitless,Year sample was collected,Int
+ID2,unitless,Number ID of georeference point near sample collection,Int
+Latitude,dd,Latitude of georeference point near where sample was collected,Double
+Longitude,dd,Longitude of georeference point near where sample was colelcted,Double
+TopDepth,cm,Top depth of subsample taken from soil core,Int
+BottomDepth,cm,Bottom depth of subsample taken from soil core,Int
+Horizon,unitless,Horizon designation of the subsample,String
+BulkDensity,g/cm^3,Bulk density of the subsample,Double
+dC13,%o,Carbon isotopic signature of the subsample,Double
+dC13AcidWashed,%o,Carbon isotopic signature of the subsample after acid washed,Double
+TNConc,%,Total nitrogen concentraion,Double
+TNConcAcidWashed,%,Total nitrogen concentration after acid washed,Double
+TCConc,%,Total carbon concentration,Double
+TCConcAcidWashed,%,Total carbon concentration after acid washed,Double
+TocConc,%,Total organic carbon concentration,Double
+TocStock,Mg/ha,Total organic carbon stock,Double
+TicConc,%,Total inorganic carbon concentration,Double
+TicStock,Mg/ha,Total inorganic carbon stock,Double
+TNStock,Mg/ha,Total nitrogen stock,Double
+pH,unitless,pH of the subsample,Double

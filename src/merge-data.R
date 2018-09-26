@@ -159,7 +159,7 @@ df <- df %>%
   mutate(TNStock = (BottomDepth - TopDepth) * TNConc / 100 * BulkDensity * 100)
 
 # Reorganize columns and write csv
-dateToday <- format(Sys.Date(), "%y%m%d")
+dateToday <- format(Sys.Date(), "%Y%m%d")
 outPathData <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_", 
                  dateToday, 
                  ".csv",
@@ -168,12 +168,15 @@ outPathDict <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_Dictio
                      dateToday, 
                      ".csv",
                      sep = "")
-varNames <- c(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
-              BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
-              TCConc, TCConcAcidWashed, TocConc, TocStock, TicConc, TicStock, TNStock, pH)
+varNames <- c("Year", "ID2", "Latitude", "Longitude", "TopDepth", "BottomDepth", "Horizon", 
+              "BulkDensity", "dC13", "dC13AcidWashed", "TNConc", "TNConcAcidWashed",
+              "TCConc", "TCConcAcidWashed", "TocConc", "TocStock", "TicConc", "TicStock", "TNStock", "pH")
 varUnits <- c("unitless", "unitless", "dd", "dd", "cm", "cm", "unitless",
               "g/cm^3", "%o", "%o", "%", "%",
               "%", "%", "%", "Mg/ha", "%", "Mg/ha", "Mg/ha", "unitless")
+varTypes <- c("Int", "Int", "Double", "Double", "Int", "Int", "String",
+              "Double", "Double", "Double", "Double", "Double",
+              "Double", "Double", "Double", "Double", "Double", "Double", "Double", "Double")
 varDesc <- c("Year sample was collected", 
              "Number ID of georeference point near sample collection",
              "Latitude of georeference point near where sample was collected",
@@ -198,7 +201,11 @@ df %>%
   select(varNames) %>% 
   write_csv(outPathData, na = "")
 
-data.frame(varNames, varUnits, varDesc) %>% 
+data.frame(varNames, varUnits, varDesc, varTypes) %>% 
+  rename("FieldNames" = varNames,
+         "Units" = varUnits,
+         "Description" = varDesc,
+         "DataType" = varTypes) %>% 
   write_csv(outPathDict)
 
 # Quick checks ----
