@@ -172,7 +172,7 @@ varNames <- c("Year", "ID2", "Latitude", "Longitude", "TopDepth", "BottomDepth",
               "BulkDensity", "dC13", "dC13AcidWashed", "TNConc", "TNConcAcidWashed",
               "TCConc", "TCConcAcidWashed", "TocConc", "TocStock", "TicConc", "TicStock", "TNStock", "pH")
 varUnits <- c("unitless", "unitless", "dd", "dd", "cm", "cm", "unitless",
-              "g/cm^3", "%o", "%o", "%", "%",
+              "g/cm^3", "permille", "permille", "%", "%",
               "%", "%", "%", "Mg/ha", "%", "Mg/ha", "Mg/ha", "unitless")
 varTypes <- c("Int", "Int", "Double", "Double", "Int", "Int", "String",
               "Double", "Double", "Double", "Double", "Double",
