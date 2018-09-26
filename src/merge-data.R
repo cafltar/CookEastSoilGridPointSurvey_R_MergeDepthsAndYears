@@ -160,15 +160,46 @@ df <- df %>%
 
 # Reorganize columns and write csv
 dateToday <- format(Sys.Date(), "%y%m%d")
-outPath <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_", 
+outPathData <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_", 
                  dateToday, 
                  ".csv",
                  sep = "")
+outPathDict <- paste("output/soilCore1998To2015ShallowDeepMergedByHorizon_Dictionary_", 
+                     dateToday, 
+                     ".csv",
+                     sep = "")
+varNames <- c(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
+              BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
+              TCConc, TCConcAcidWashed, TocConc, TocStock, TicConc, TicStock, TNStock, pH)
+varUnits <- c("unitless", "unitless", "dd", "dd", "cm", "cm", "unitless",
+              "g/cm^3", "%o", "%o", "%", "%",
+              "%", "%", "%", "Mg/ha", "%", "Mg/ha", "Mg/ha", "unitless")
+varDesc <- c("Year sample was collected", 
+             "Number ID of georeference point near sample collection",
+             "Latitude of georeference point near where sample was collected",
+             "Longitude of georeference point near where sample was colelcted",
+             "Top depth of subsample taken from soil core",
+             "Bottom depth of subsample taken from soil core",
+             "Horizon designation of the subsample",
+             "Bulk density of the subsample",
+             "Carbon isotopic signature of the subsample",
+             "Carbon isotopic signature of the subsample after acid washed",
+             "Total nitrogen concentraion",
+             "Total nitrogen concentration after acid washed",
+             "Total carbon concentration",
+             "Total carbon concentration after acid washed",
+             "Total organic carbon concentration",
+             "Total organic carbon stock",
+             "Total inorganic carbon concentration",
+             "Total inorganic carbon stock",
+             "Total nitrogen stock",
+             "pH of the subsample")
 df %>% 
-  select(Year, ID2, Latitude, Longitude, TopDepth, BottomDepth, Horizon, 
-         BulkDensity, dC13, dC13AcidWashed, TNConc, TNConcAcidWashed,
-         TCConc, TCConcAcidWashed, TocConc, TocStock, TicConc, TicStock, TNStock, pH) %>% 
-  write_csv(outPath, na = "")
+  select(varNames) %>% 
+  write_csv(outPathData, na = "")
+
+data.frame(varNames, varUnits, varDesc) %>% 
+  write_csv(outPathDict)
 
 # Quick checks ----
 ## Compare points between datasets:
