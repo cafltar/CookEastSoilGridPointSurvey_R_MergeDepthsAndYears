@@ -37,3 +37,9 @@
 * [soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx](soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx)
 	* From [../Excel]
 	* Recified issues with BD data from [2017_08_29_Accepted_BD_for_Merging_2017_03_08.xlsx] and BD data from [2015 soil samples  merge 0-30 and below profile data organization.xlsx] - updated depths, horizons, probably other things
+	
+## 09/26/2018
+* [soilCore2015MergeAcceptedBDWithEllens_ForImport_20180926.xlsx](soilCore2015MergeAcceptedBDWithEllens_ForImport_20180926.xlsx)
+	* From [../Excel]
+	* Ellen found data from four georef points (371, 399, 401, 421), merged these into previous file
+	* See [../Excel/2015 COOK organized soil core (0-10-20-30-layer) samples + 4 points 20180925.xlsx]

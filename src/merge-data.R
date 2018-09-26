@@ -10,7 +10,7 @@ georef <- st_read("input/CookEast_GeoReferencePoints_2015_IL/All_CookEast.shp") 
   select(ID2, COLUMN, ROW2, STRIP, FIELD)
 
 df2015 <- read_excel(
-  "input/soilCore2015MergeAcceptedBDWithEllens_ForImport_20180924.xlsx",
+  "input/soilCore2015MergeAcceptedBDWithEllens_ForImport_20180926.xlsx",
   "Sheet1")
 
 # 1998, 2008 soil data include shallow and deep cores, no acid washed integration
@@ -185,8 +185,8 @@ varDesc <- c("Year sample was collected",
              "Bottom depth of subsample taken from soil core",
              "Horizon designation of the subsample",
              "Bulk density of the subsample",
-             "Carbon isotopic signature of the subsample",
-             "Carbon isotopic signature of the subsample after acid washed",
+             "Carbon isotopic composition of the subsample",
+             "Carbon isotopic composition of the subsample after acid washed",
              "Total nitrogen concentraion",
              "Total nitrogen concentration after acid washed",
              "Total carbon concentration",
@@ -202,7 +202,7 @@ df %>%
   write_csv(outPathData, na = "")
 
 data.frame(varNames, varUnits, varDesc, varTypes) %>% 
-  rename("FieldNames" = varNames,
+  rename("FieldName" = varNames,
          "Units" = varUnits,
          "Description" = varDesc,
          "DataType" = varTypes) %>% 
