@@ -199,6 +199,7 @@ varDesc <- c("Year sample was collected",
              "pH of the subsample")
 df %>% 
   select(varNames) %>% 
+  filter(!is.na(TopDepth), !is.na(BottomDepth)) %>% 
   write_csv(outPathData, na = "")
 
 data.frame(varNames, varUnits, varDesc, varTypes) %>% 
