@@ -90,6 +90,17 @@ df %>% names()
 
 ## Map sample locations
 
+Demo of 2015 data
+```{r}
+tmap_mode("view")
+sf %>% 
+  filter(Year == 2015) %>% 
+  group_by(ID2) %>% 
+  summarize(avgBD = mean(BulkDensity), totalTNStock = sum(TNStock), totalTocStock = sum(TocStock)) %>% 
+  tm_shape() +
+  tm_symbols(size = 0.5) +
+  tm_basemap("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}")
+```
 Compare samples across years
 
 ```{r ggplotMap }
