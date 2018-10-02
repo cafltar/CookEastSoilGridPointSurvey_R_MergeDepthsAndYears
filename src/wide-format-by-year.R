@@ -98,7 +98,6 @@ wide <- carbon %>%
   left_join(pH, by = join.by) %>% 
   left_join(bulkDensity, by = join.by) %>%
   left_join(CN, by = join.by)
-  
 
 dateToday <- format(Sys.Date(), "%Y%m%d")
 
