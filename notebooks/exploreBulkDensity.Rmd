@@ -1,0 +1,112 @@
+---
+title: "Explore Soil Core Data"
+output: html_document
+---
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r setup}
+library(tidyverse)
+library(sf)
+library(tmap)
+library(DT)
+library(gstat)
+library(raster)
+library(maptools)
+#map_cookeast_idw(sf.bd1998, cookeast, AvgBD, seq(1.1,1.7,by=0.1), cols <- blues9[3:9])
+```
+
+## Load data
+
+```{r loadData}
+df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_20201217.csv")
+sf <- st_as_sf(df, coords = c("Longitude", "Latitude"), crs = 4326)
+cookeast <- st_read("../input/CookEastBoundary_20180131.geojson")
+```
+
+## Map sample locations
+
+Demo of 1998 data
+```{r}
+tmap_mode("view")
+sf %>% 
+  filter(Year == 1998) %>% 
+  group_by(ID2) %>% 
+  summarize(avgBD = mean(BulkDensity), totalTNStock = sum(TNStock), totalTocStock = sum(TocStock)) %>% 
+  tm_shape() +
+  tm_symbols(size = 0.5) +
+  tm_basemap("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}")
+```
+
+# Bulk Density (g/cm^3)
+```{r}
+bd <- sf %>% 
+  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>%
+  na.exclude() %>% 
+  filter(!is.na(BulkDensity))
+
+bd %>% summary()
+```
+
+## Histogram
+
+```{r}
+bd %>% 
+  ggplot(aes(x=BulkDensity)) +
+    geom_histogram(position="identity", color="grey40", alpha=0.2, bins=30)+
+    scale_x_continuous(breaks = seq(0,2,.2), limits=c(0,2)) +
+    facet_grid(Year ~ .)
+```
+
+## Histogram, bin'd by BottomDepth
+```{r}
+bd %>% 
+  ggplot(aes(x=BulkDensity, fill=cut(BottomDepth, 12))) +
+    geom_histogram(position="identity", color="grey40", alpha=0.2, bins=30) +
+    scale_x_continuous(breaks = seq(0,2,.2), limits=c(0,2)) +
+    facet_grid(Year ~ .)
+    
+```
+
+## Bulk density values less than 0.9
+
+```{r}
+bd %>% 
+  filter(BulkDensity < 0.9) %>% 
+  datatable()
+```
+
+## Map of bulk density values less than 0.9
+```{r}
+bd %>% 
+  filter(BulkDensity < 0.9) %>% 
+  ggplot() +
+    geom_sf(data = cookeast) +
+    geom_sf(aes(color=BulkDensity)) +
+    facet_wrap(~Year, ncol = 1)
+    
+  
+```
+
+## Bulk density values greater than 1.75
+
+```{r}
+bd %>% 
+  filter(BulkDensity > 1.75) %>% 
+  datatable()
+```
+
+## Map of bulk density values greater than 1.75
+```{r}
+bd %>% 
+  filter(BulkDensity > 1.75) %>% 
+  ggplot() +
+    geom_sf(data = cookeast) +
+    geom_sf(aes(color=BulkDensity)) +
+    facet_wrap(~Year, ncol = 1)
+    
+  
+```

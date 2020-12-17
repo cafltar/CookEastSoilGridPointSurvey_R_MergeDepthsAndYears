@@ -76,7 +76,7 @@ map_cookeast_idw <- function(simpleFeatureObj,
 ## Load data
 
 ```{r loadData}
-df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_20180926.csv")
+df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_20201217.csv")
 sf <- st_as_sf(df, coords = c("Longitude", "Latitude"), crs = 4326)
 cookeast <- st_read("../input/CookEastBoundary_20180131.geojson")
 ```
@@ -114,23 +114,23 @@ sf %>% ggplot() +
 # Bulk Density (g/cm^3)
 
 ```{r bulkDensityWideFormat}
-bulkDensity <- df %>% 
-  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  mutate(key = row_number()) %>% 
-  spread(Year, BulkDensity) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  fill(-ID2, TopDepth, BottomDepth) %>% 
-  mutate(maxKey = max(key)) %>% 
-  filter(key == maxKey) %>% 
-  dplyr::select(-key, -maxKey) %>% 
-  rename(BulkDensity1998 = 4, BulkDensity2005 = 5, BulkDensity2015 = 6)
+#bulkDensity <- df %>% 
+#  dplyr::select(ID2, Year, TopDepth, BottomDepth, BulkDensity) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  mutate(key = row_number()) %>% 
+#  spread(Year, BulkDensity) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  fill(-ID2, TopDepth, BottomDepth) %>% 
+#  mutate(maxKey = max(key)) %>% 
+#  filter(key == maxKey) %>% 
+#  dplyr::select(-key, -maxKey) %>% 
+#  rename(BulkDensity1998 = 4, BulkDensity2005 = 5, BulkDensity2015 = 6)
 ```
 
 Display table
 
 ```{r bulkDensityTable}
-bulkDensity %>% datatable(rownames = F)
+#bulkDensity %>% datatable(rownames = F)
 ```
 
 Map avg bulk density
@@ -189,23 +189,23 @@ sf %>%
 # pH
 
 ```{r pHWideFormat}
-pH <- df %>% 
-  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  mutate(key = row_number()) %>% 
-  spread(Year, pH) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  fill(-ID2, TopDepth, BottomDepth) %>% 
-  mutate(maxKey = max(key)) %>% 
-  filter(key == maxKey) %>% 
-  dplyr::select(-key, -maxKey) %>% 
-  rename(pH1998 = 4, pH2008 = 5, pH2015 = 6)
+#pH <- df %>% 
+#  dplyr::select(ID2, Year, TopDepth, BottomDepth, pH) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  mutate(key = row_number()) %>% 
+#  spread(Year, pH) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  fill(-ID2, TopDepth, BottomDepth) %>% 
+#  mutate(maxKey = max(key)) %>% 
+#  filter(key == maxKey) %>% 
+#  dplyr::select(-key, -maxKey) %>% 
+#  rename(pH1998 = 4, pH2008 = 5, pH2015 = 6)
 ```
 
 Display table
 
 ```{r pHTable}
-pH %>% datatable(rownames = F)
+#pH %>% datatable(rownames = F)
 ```
 
 Map pH, year by bottom depth (0-10 cm, 10-20 cm, 20-30 cm)
@@ -258,22 +258,22 @@ sf %>%
 # Total organic carbon stock (Mg/ha)
 
 ```{r}
-tocStock <- df %>% 
-  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  mutate(key = row_number()) %>% 
-  spread(Year, TocStock) %>% 
-  dplyr::select(-key) %>% 
-  group_by(ID2, TopDepth, BottomDepth) %>% 
-  fill(-ID2, TopDepth, BottomDepth) %>% 
-  rename(TocStock1998 = 4, TocStock2005 = 5, TocStock2015 = 6) %>% 
-  filter(!is.na(TocStock2015))
+#tocStock <- df %>% 
+#  dplyr::select(ID2, Year, TopDepth, BottomDepth, TocStock) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  mutate(key = row_number()) %>% 
+#  spread(Year, TocStock) %>% 
+#  dplyr::select(-key) %>% 
+#  group_by(ID2, TopDepth, BottomDepth) %>% 
+#  fill(-ID2, TopDepth, BottomDepth) %>% 
+#  rename(TocStock1998 = 4, TocStock2005 = 5, TocStock2015 = 6) %>% 
+#  filter(!is.na(TocStock2015))
 ```
 
 Display table
 
 ```{r}
-tocStock %>% datatable(rownames = F)
+#tocStock %>% datatable(rownames = F)
 ```
 
 Map profile TOC Stock

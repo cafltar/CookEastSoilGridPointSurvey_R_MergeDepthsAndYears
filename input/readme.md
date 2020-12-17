@@ -1,4 +1,4 @@
-# README
+# Files
 
 ## 09/13/2018
 
@@ -46,3 +46,9 @@
   * From [Team Drives\CookEastSoilGridPointSurvey\Working\Excel]
   * Ellen found data from four georef points (371, 399, 401, 421), merged these into previous file
   * See [Team Drives\CookEastSoilGridPointSurvey\Working\Excel\2015 COOK organized soil core (0-10-20-30-layer) samples + 4 points 20180925.xlsx]
+  
+## 12/17/2020
+
+* [Soil_Plant_Fert_Data_Combined_depthsCorrected_20201217.xlsx](Soil_Plant_Fert_Data_Combined_depthsCorrected_20201217.xlsx)
+  * From CAF Google Shared Drive: [CookEastSoilGridPointSurvey\legacy\Working\Excel]
+  * Fixed copy/paste error for bulk density values for ID2=189 for year 1998 and 2008

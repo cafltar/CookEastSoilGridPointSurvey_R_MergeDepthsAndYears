@@ -7,7 +7,7 @@ library(tmap)
 # Georef points are 369 grid points the soil was sampled from
 georef <- st_read("input/CookEast_GeoReferencePoints_2015_IL/All_CookEast.shp") %>% 
   st_transform(crs = 4326) %>% 
-  select(ID2, COLUMN, ROW2, STRIP, FIELD)
+  dplyr::select(ID2, COLUMN, ROW2, STRIP, FIELD)
 
 df2015 <- read_excel(
   "input/soilCore2015MergeAcceptedBDWithEllens_ForImport_20180926.xlsx",
@@ -15,7 +15,7 @@ df2015 <- read_excel(
 
 # 1998, 2008 soil data include shallow and deep cores, no acid washed integration
 df1998_2008 <- read_excel(
-  "input/Soil_Plant_Fert_Data_Combined_depthsCorrected_20180919.xlsx",
+  "input/Soil_Plant_Fert_Data_Combined_depthsCorrected_20201217.xlsx",
   "1998_2008_SoilMerged_2017_03_09",
   na = c(".", "", "NA"))
 
@@ -29,7 +29,7 @@ clean15 <- df2015 %>%
 
 # Select and rename
 dfX8 <- df1998_2008 %>% 
-  select("1998_ID2",
+  dplyr::select("1998_ID2",
     "1998_Horizons",
     "1998_TopD_cm",
     "1998_BottomD_cm",
@@ -60,14 +60,14 @@ dfX8 <- df1998_2008 %>%
 
 # Split year columns into separate dataframes, add Year column, remove year prefix from column names, convert data classes
 df98 <- dfX8 %>% 
-  select("ID2", contains("1998")) %>% 
+  dplyr::select("ID2", contains("1998")) %>% 
   mutate(Year = 1998) %>% 
   rename_at(vars(contains("1998")), funs(sub("1998_", "", .))) %>% 
   mutate(TopD_cm = as.double(TopD_cm)) %>% 
   mutate(BottomD_cm = as.double(BottomD_cm)) %>% 
   mutate(pH = as.double(pH))
 df08 <- dfX8 %>% 
-  select("ID2", contains("2008")) %>% 
+  dplyr::select("ID2", contains("2008")) %>% 
   mutate(Year = 2008) %>% 
   rename_at(vars(contains("2008")), funs(sub("2008_", "", .))) %>% 
   mutate(TopD_cm = as.double(TopD_cm)) %>% 
@@ -115,7 +115,7 @@ cleanAcidX8 <- dfAcidX8  %>%
          Year = as.numeric(Year))
 
 cleanX8AcidWash <- full_join(cleanX8, cleanAcidX8, by = c("ID2", "BottomDepth", "Year")) %>% 
-  select(-TopDepth.y, -Field, -Column, -Row) %>% 
+  dplyr::select(-TopDepth.y, -Field, -Column, -Row) %>% 
   rename(TopDepth = TopDepth.x)
 
 # Finalize dataset ----
@@ -130,7 +130,7 @@ df <- cleanAllYears %>%
   ungroup() %>% 
   mutate(BottomDepth = case_when(BottomDepth == MaxDepth ~ 153,
     TRUE ~ BottomDepth)) %>% 
-  select(-MaxDepth)
+  dplyr::select(-MaxDepth)
 
 # Calculate total organic carbon stocks
 df <- df %>% 
@@ -143,7 +143,7 @@ df <- df %>%
   full_join(data.frame(st_coordinates(georef), 
                        st_set_geometry(georef, NULL)),
             by = c("ID2")) %>% 
-  select(-COLUMN, -ROW2, -STRIP, -FIELD) %>% 
+  dplyr::select(-COLUMN, -ROW2, -STRIP, -FIELD) %>% 
   rename(Latitude = Y, Longitude = X) %>% 
   filter(!is.na(Year))
 
@@ -198,7 +198,7 @@ varDesc <- c("Year sample was collected",
              "Total nitrogen stock",
              "pH of the subsample")
 df %>% 
-  select(varNames) %>% 
+  dplyr::select(varNames) %>% 
   filter(!is.na(TopDepth), !is.na(BottomDepth)) %>% 
   write_csv(outPathData, na = "")
 
