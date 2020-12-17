@@ -66,6 +66,7 @@ df98 <- dfX8 %>%
   mutate(TopD_cm = as.double(TopD_cm)) %>% 
   mutate(BottomD_cm = as.double(BottomD_cm)) %>% 
   mutate(pH = as.double(pH))
+
 df08 <- dfX8 %>% 
   dplyr::select("ID2", contains("2008")) %>% 
   mutate(Year = 2008) %>% 
@@ -131,6 +132,10 @@ df <- cleanAllYears %>%
   mutate(BottomDepth = case_when(BottomDepth == MaxDepth ~ 153,
     TRUE ~ BottomDepth)) %>% 
   dplyr::select(-MaxDepth)
+
+# Convert pH values of 0 to NA
+df <- df %>% 
+  mutate(pH = na_if(pH, 0))
 
 # Calculate total organic carbon stocks
 df <- df %>% 
