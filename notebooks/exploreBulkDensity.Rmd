@@ -22,7 +22,7 @@ library(maptools)
 ## Load data
 
 ```{r loadData}
-df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_20201217.csv")
+df <- read_csv("../output/soilCore1998To2015ShallowDeepMergedByHorizon_20201221.csv")
 sf <- st_as_sf(df, coords = c("Longitude", "Latitude"), crs = 4326)
 cookeast <- st_read("../input/CookEastBoundary_20180131.geojson")
 ```

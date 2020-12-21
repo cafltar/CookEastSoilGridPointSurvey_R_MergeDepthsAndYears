@@ -94,6 +94,13 @@ cleanX8 <- bind_rows(df98, df08) %>%
     as.character(BottomDepth),
     sep = ""))
 
+# 1998 and 2008 have a lot of 0 values in pH, C, N cols that are very likely to be NAs
+cleanX8 <- cleanX8 %>% 
+  mutate(TCConc = na_if(TCConc, 0)) %>% 
+  mutate(TNConc = na_if(TNConc, 0)) %>% 
+  mutate(TocStock = na_if(TocStock, 0)) %>%
+  mutate(pH = na_if(pH, 0))
+
 # Merge acid washed with cleanX8
 cleanAcidX8 <- dfAcidX8  %>% 
   rename("dC13AcidWashed" = "dC13",
