@@ -140,10 +140,6 @@ df <- cleanAllYears %>%
     TRUE ~ BottomDepth)) %>% 
   dplyr::select(-MaxDepth)
 
-# Convert pH values of 0 to NA
-df <- df %>% 
-  mutate(pH = na_if(pH, 0))
-
 # Calculate total organic carbon stocks
 df <- df %>% 
   mutate(TocStock = case_when(
@@ -162,11 +158,11 @@ df <- df %>%
 # Add C and N related columns
 df <- df %>% 
   mutate(TocConc = case_when(
-    is.na(TCConcAcidWashed) & !is.na(TCConc) ~ TCConc,
+    (is.na(TCConcAcidWashed) & !is.na(TCConc)) ~ TCConc,
     !is.na(TCConcAcidWashed) ~ TCConcAcidWashed)) %>% 
   mutate(TicConc = case_when(
-    !is.na(TCConcAcidWashed) & !is.na(TCConc) ~ TCConc - TCConcAcidWashed,
-    TRUE ~ 0)) %>% 
+    (!is.na(TCConcAcidWashed) & !is.na(TCConc)) ~ TCConc - TCConcAcidWashed,
+    TRUE ~ NA_real_)) %>% 
   mutate(TicStock = (BottomDepth - TopDepth) * TicConc / 100 * BulkDensity * 100) %>% 
   mutate(TNStock = (BottomDepth - TopDepth) * TNConc / 100 * BulkDensity * 100)
 
